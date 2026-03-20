@@ -108,7 +108,7 @@ class WaterTankCard extends LitElement {
     let displayRainUnit = isUS ? "gal" : "L";
 
     // --- THRESHOLDS ---
-    const tempThreshold = this.config.warning_threshold || 20;
+    const tempThreshold = this.config.warning_threshold || 25;
     const lowLevelThreshold = this.config.low_level_threshold ?? 10;
     const isTempWarning = tempC !== null && tempC > tempThreshold;
     const isLowWarning = percentage <= lowLevelThreshold;
@@ -121,7 +121,8 @@ class WaterTankCard extends LitElement {
       if (isTempWarning) {
         wTop = "#fb923c"; wMid = "#ea580c"; wBot = "#7c2d12";
       } else {
-        const r = Math.max(0, Math.min(1, tempC / tempThreshold));
+        // Shift interpolation to keep 18.8 bluish
+        const r = Math.max(0, Math.min(1, (tempC - 15) / (tempThreshold - 10)));
         wTop = `rgb(${Math.round(34+217*r)},${Math.round(211-65*r)},${Math.round(238-178*r)})`;
         wMid = `rgb(${Math.round(2+232*r)},${Math.round(132-44*r)},${Math.round(199-187*r)})`;
         wBot = `rgb(${Math.round(12+112*r)},${Math.round(74-29*r)},${Math.round(110-92*r)})`;
@@ -146,7 +147,7 @@ class WaterTankCard extends LitElement {
     const pipeInY = topY - 20;
     const pipeOutStartY = botY - 15;
     const pipeOutEndX = cx + rx + 32;
-    const pipeOutBendY = botY + 20;
+    const pipeOutBendY = botY + 8;
 
     const wL = cx - rx + 3;
     const wR = cx + rx - 3;
@@ -159,14 +160,12 @@ class WaterTankCard extends LitElement {
     const showInflow = inflowRate > 0 ? "inline" : "none";
     const showOutflow = isOutflow ? "inline" : "none";
     const showBubbles = wp > 8 ? "inline" : "none";
-    const showTopBand = waterH > 15 ? "inline" : "none";
     const showCaustics = waterH > 25 ? "inline" : "none";
 
     // Water body path with curved bottom
     const waterBodyPath = `M${wL} ${waterSurfY} L${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY} L${wR} ${waterSurfY} Z`;
     const waterBotArc = `M${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY}`;
     const inflowEndY = Math.min(waterSurfY - 2, botY - 5);
-    const topBandH = Math.min(waterH * 0.35, 30);
 
     return html`
       <ha-card>
@@ -197,6 +196,10 @@ class WaterTankCard extends LitElement {
                 <filter id="sh-${u}" x="-15%" y="-10%" width="130%" height="130%">
                   <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(0,0,0,0.2)"/>
                 </filter>
+                <linearGradient id="wf-${u}" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="${wTop}" stop-opacity="0.85"/>
+                  <stop offset="100%" stop-color="${wBot}"/>
+                </linearGradient>
               </defs>
 
               <!-- INFLOW PIPE -->
@@ -211,7 +214,6 @@ class WaterTankCard extends LitElement {
               <rect x="${pipeOutEndX - 5}" y="${pipeOutStartY}" width="10" height="${pipeOutBendY - pipeOutStartY}" rx="2" fill="url(#pg-${u})"/>
               <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
               <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="3" fill="#b0bec5"/>
-              <path d="M${pipeOutEndX - 6} ${pipeOutBendY} L${pipeOutEndX - 3} ${pipeOutBendY + 5} L${pipeOutEndX + 3} ${pipeOutBendY + 5} L${pipeOutEndX + 6} ${pipeOutBendY} Z" fill="#546e7a"/>
 
               <!-- OUTFLOW WATER (always in DOM, toggled via display) -->
               <g display="${showOutflow}">
@@ -234,12 +236,8 @@ class WaterTankCard extends LitElement {
 
                 <!-- WATER FILL (always in DOM, toggled via display) -->
                 <g display="${showWater}">
-                  <!-- Base water layer -->
-                  <path d="${waterBodyPath}" fill="${wBot}"/>
-                  <!-- Mid tone overlay -->
-                  <path d="${waterBodyPath}" fill="${wMid}" opacity="0.55"/>
-                  <!-- Light top band -->
-                  <rect display="${showTopBand}" x="${wL}" y="${waterSurfY}" width="${wR - wL}" height="${topBandH}" fill="${wTop}" opacity="0.3"/>
+                  <!-- Gradient water fill -->
+                  <path d="${waterBodyPath}" fill="url(#wf-${u})"/>
                   <!-- Left specular -->
                   <rect x="${wL}" y="${waterSurfY}" width="10" height="${waterH}" fill="white" opacity="0.08"/>
                   <!-- Caustic patches -->
@@ -258,8 +256,8 @@ class WaterTankCard extends LitElement {
 
                 <!-- Water surface ellipse -->
                 <g display="${showSurface}">
-                  <ellipse class="water-surface" cx="${cx}" cy="${waterSurfY}" rx="${rx - 2}" ry="${ry - 1}" fill="${wTop}" fill-opacity="0.7" stroke="${wTop}" stroke-width="1" stroke-opacity="0.5"/>
-                  <ellipse cx="${cx - 5}" cy="${waterSurfY - 1}" rx="${rx * 0.4}" ry="${ry * 0.25}" fill="white" opacity="0.18"/>
+                  <ellipse class="water-surface" cx="${cx}" cy="${waterSurfY}" rx="${rx - 2}" ry="${ry - 1}" fill="${wTop}" fill-opacity="0.5" stroke="${wTop}" stroke-width="1" stroke-opacity="0.4"/>
+                  <ellipse cx="${cx}" cy="${waterSurfY - 1}" rx="${rx * 0.4}" ry="${ry * 0.25}" fill="white" opacity="0.15"/>
                 </g>
 
                 <!-- Bottom water arc -->
