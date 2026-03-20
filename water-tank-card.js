@@ -4,8 +4,8 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-// Version 23.1 - Static SVG, display toggle
-console.info("%c WATER-TANK-CARD %c v23.1.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
+// Version 23.2 - Bottom arc fix, blue outflow
+console.info("%c WATER-TANK-CARD %c v23.2.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
 
 class WaterTankCard extends LitElement {
   static get properties() {
@@ -163,7 +163,7 @@ class WaterTankCard extends LitElement {
     const showCaustics = waterH > 25 ? "inline" : "none";
 
     // Water body path with curved bottom
-    const waterBodyPath = `M${wL} ${waterSurfY} L${wL} ${botY} A${wRx} ${wRy} 0 0 1 ${wR} ${botY} L${wR} ${waterSurfY} Z`;
+    const waterBodyPath = `M${wL} ${waterSurfY} L${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY} L${wR} ${waterSurfY} Z`;
     const waterBotArc = `M${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY}`;
     const inflowEndY = Math.min(waterSurfY - 2, botY - 5);
     const topBandH = Math.min(waterH * 0.35, 30);
@@ -215,13 +215,13 @@ class WaterTankCard extends LitElement {
 
               <!-- OUTFLOW WATER (always in DOM, toggled via display) -->
               <g display="${showOutflow}">
-                <rect x="${cx + rx}" y="${pipeOutStartY - 2}" width="${pipeOutEndX - cx - rx}" height="4" fill="${wMid}" opacity="0.85"/>
+                <rect x="${cx + rx}" y="${pipeOutStartY - 2}" width="${pipeOutEndX - cx - rx}" height="4" fill="#0284c7" opacity="0.85"/>
                 <line class="outflow-dash-h" x1="${cx + rx}" y1="${pipeOutStartY}" x2="${pipeOutEndX}" y2="${pipeOutStartY}" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
-                <rect x="${pipeOutEndX - 2}" y="${pipeOutStartY}" width="4" height="${pipeOutBendY - pipeOutStartY + 3}" fill="${wMid}" opacity="0.85"/>
+                <rect x="${pipeOutEndX - 2}" y="${pipeOutStartY}" width="4" height="${pipeOutBendY - pipeOutStartY + 3}" fill="#0284c7" opacity="0.85"/>
                 <line class="outflow-dash-v" x1="${pipeOutEndX}" y1="${pipeOutStartY}" x2="${pipeOutEndX}" y2="${pipeOutBendY + 3}" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
-                <circle class="drip d1" cx="${pipeOutEndX}" cy="${pipeOutBendY + 9}" r="2.5" fill="${wTop}" opacity="0.8"/>
-                <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="${wMid}" opacity="0.6"/>
-                <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="${wMid}" opacity="0.4"/>
+                <circle class="drip d1" cx="${pipeOutEndX}" cy="${pipeOutBendY + 9}" r="2.5" fill="#22d3ee" opacity="0.8"/>
+                <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="#0284c7" opacity="0.6"/>
+                <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="#0284c7" opacity="0.4"/>
               </g>
 
               <!-- 3D CYLINDER -->
