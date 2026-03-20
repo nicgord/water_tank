@@ -4,8 +4,8 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-// Version 21.0 - 3D Cylinder Tank
-console.info("%c WATER-TANK-CARD %c v21.0.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
+// Version 21.1 - Fix water fill, pipe positions
+console.info("%c WATER-TANK-CARD %c v21.1.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
 
 class WaterTankCard extends LitElement {
   static get properties() {
@@ -60,6 +60,10 @@ class WaterTankCard extends LitElement {
       if (s === "on" || s === "true" || s === "active" || s === "open" || parseFloat(s) > 0) {
         isOutflow = true;
       }
+      // Debug: log outflow state
+      console.debug(`[water-tank-card] outflow entity "${this.config.outflow_entity}" state: "${outflowObj.state}" → isOutflow: ${isOutflow}`);
+    } else if (this.config.outflow_entity) {
+      console.debug(`[water-tank-card] outflow entity "${this.config.outflow_entity}" not found in hass.states`);
     }
 
     // --- VOLUME LOGIC ---
@@ -114,7 +118,7 @@ class WaterTankCard extends LitElement {
     const isTempWarning = tempC !== null && tempC > tempThreshold;
     const isLowWarning = percentage <= lowLevelThreshold;
 
-    // Water colors — vivid blues, shift warm with temperature
+    // Water colors
     let wTop = "#22d3ee";
     let wMid = "#0284c7";
     let wBot = "#0c4a6e";
@@ -131,30 +135,29 @@ class WaterTankCard extends LitElement {
       }
     }
 
-    const wp = percentage; // water percent
+    const wp = percentage;
 
     /* ============ CYLINDER GEOMETRY ============ */
-    const cx = 100;       // center X
-    const rx = 48;        // horizontal radius of ellipse
-    const ry = 14;        // vertical radius (perspective depth)
-    const topY = 38;      // Y of top ellipse center
-    const botY = 158;     // Y of bottom ellipse center
-    const bodyH = botY - topY; // height of the cylinder body
+    const cx = 100;       // center X of cylinder
+    const rx = 46;        // horizontal radius
+    const ry = 13;        // vertical radius (perspective)
+    const topY = 38;      // top ellipse center Y
+    const botY = 155;     // bottom ellipse center Y
+    const bodyH = botY - topY;
 
-    // Water surface Y position
+    // Water surface Y
     const waterSurfY = botY - (bodyH * wp / 100);
-    // Water body spans from waterSurfY down to botY
 
-    // Inflow pipe: comes from left, bends down into tank top
-    const pipeInEndX = cx - 15;
-    const pipeInY = topY - 18;
+    // Inflow pipe: enters CENTER TOP of tank, comes from left
+    const pipeInEndX = cx;  // center of tank
+    const pipeInY = topY - 20;
 
-    // Outflow pipe: exits right side of tank near bottom, goes right then down
-    const pipeOutStartY = botY - 18;
-    const pipeOutEndX = 188;
-    const pipeOutBendY = botY + 30;
+    // Outflow pipe: exits right side near bottom, shorter pipe
+    const pipeOutStartY = botY - 15;
+    const pipeOutEndX = cx + rx + 35;  // shorter horizontal run
+    const pipeOutBendY = botY + 22;
 
-    // Unique ID prefix for SVG defs
+    // Unique ID prefix for SVG defs (avoids conflicts with multiple cards)
     const u = Math.random().toString(36).substr(2, 6);
 
     return html`
@@ -170,33 +173,33 @@ class WaterTankCard extends LitElement {
           <div class="tank-container">
             <svg class="tank-svg" viewBox="0 0 200 200" style="overflow: visible;">
               <defs>
-                <!-- Water body gradient (top to bottom) -->
+                <!-- Water gradient -->
                 <linearGradient id="wg-${u}" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stop-color="${wTop}" stop-opacity="0.9"/>
                   <stop offset="50%" stop-color="${wMid}" stop-opacity="0.95"/>
                   <stop offset="100%" stop-color="${wBot}" stop-opacity="1"/>
                 </linearGradient>
 
-                <!-- Water surface ellipse gradient (lighter, translucent) -->
-                <radialGradient id="wsurf-${u}" cx="40%" cy="40%" r="60%">
+                <!-- Water surface radial gradient -->
+                <radialGradient id="ws-${u}" cx="40%" cy="40%" r="60%">
                   <stop offset="0%" stop-color="${wTop}" stop-opacity="0.95"/>
-                  <stop offset="100%" stop-color="${wMid}" stop-opacity="0.85"/>
+                  <stop offset="100%" stop-color="${wMid}" stop-opacity="0.8"/>
                 </radialGradient>
 
-                <!-- Specular highlight on water body (left side shine) -->
-                <linearGradient id="whl-${u}" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
-                  <stop offset="20%" stop-color="white" stop-opacity="0.05"/>
-                  <stop offset="100%" stop-color="white" stop-opacity="0"/>
-                </linearGradient>
-
-                <!-- Tank body gradient (metallic cylinder) -->
+                <!-- Cylinder body shading -->
                 <linearGradient id="cyl-${u}" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stop-color="var(--primary-text-color)" stop-opacity="0.12"/>
                   <stop offset="15%" stop-color="var(--primary-text-color)" stop-opacity="0.04"/>
                   <stop offset="50%" stop-color="var(--primary-text-color)" stop-opacity="0.02"/>
                   <stop offset="85%" stop-color="var(--primary-text-color)" stop-opacity="0.04"/>
                   <stop offset="100%" stop-color="var(--primary-text-color)" stop-opacity="0.14"/>
+                </linearGradient>
+
+                <!-- Specular highlight on water (left side) -->
+                <linearGradient id="whl-${u}" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+                  <stop offset="25%" stop-color="white" stop-opacity="0.05"/>
+                  <stop offset="100%" stop-color="white" stop-opacity="0"/>
                 </linearGradient>
 
                 <!-- Pipe gradient -->
@@ -211,123 +214,123 @@ class WaterTankCard extends LitElement {
                 <filter id="ts-${u}" x="-15%" y="-10%" width="130%" height="130%">
                   <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(0,0,0,0.2)"/>
                 </filter>
-
-                <!-- Clip: cylinder body (between the two ellipses) -->
-                <clipPath id="cylClip-${u}">
-                  <rect x="${cx - rx}" y="${topY}" width="${rx * 2}" height="${bodyH}"/>
-                </clipPath>
               </defs>
 
-              <!-- ====== INFLOW PIPE ====== -->
-              <!-- Horizontal -->
+              <!-- ====== INFLOW PIPE (enters center top) ====== -->
+              <!-- Horizontal from left to center -->
               <rect x="8" y="${pipeInY - 5}" width="${pipeInEndX - 8}" height="10" rx="2" fill="url(#pg-${u})"/>
-              <!-- Vertical -->
-              <rect x="${pipeInEndX - 5}" y="${pipeInY}" width="10" height="${topY - pipeInY + ry}" rx="2" fill="url(#pg-${u})"/>
-              <!-- Elbow -->
+              <!-- Vertical down into tank -->
+              <rect x="${pipeInEndX - 5}" y="${pipeInY}" width="10" height="${topY - pipeInY + ry + 2}" rx="2" fill="url(#pg-${u})"/>
+              <!-- Elbow joint -->
               <circle cx="${pipeInEndX}" cy="${pipeInY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
               <circle cx="${pipeInEndX}" cy="${pipeInY}" r="3" fill="#b0bec5"/>
               <!-- End cap -->
               <rect x="5" y="${pipeInY - 7}" width="6" height="14" rx="2" fill="#546e7a"/>
 
-              <!-- ====== OUTFLOW PIPE ====== -->
+              <!-- ====== OUTFLOW PIPE (right side, shorter) ====== -->
               <!-- Horizontal from tank -->
-              <rect x="${cx + rx - 3}" y="${pipeOutStartY - 5}" width="${pipeOutEndX - cx - rx + 8}" height="10" rx="2" fill="url(#pg-${u})"/>
+              <rect x="${cx + rx - 3}" y="${pipeOutStartY - 5}" width="${pipeOutEndX - cx - rx + 6}" height="10" rx="2" fill="url(#pg-${u})"/>
               <!-- Vertical down -->
               <rect x="${pipeOutEndX - 5}" y="${pipeOutStartY}" width="10" height="${pipeOutBendY - pipeOutStartY}" rx="2" fill="url(#pg-${u})"/>
               <!-- Elbow -->
               <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
               <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="3" fill="#b0bec5"/>
               <!-- Nozzle -->
-              <path d="M${pipeOutEndX - 6} ${pipeOutBendY} L${pipeOutEndX - 3} ${pipeOutBendY + 6} L${pipeOutEndX + 3} ${pipeOutBendY + 6} L${pipeOutEndX + 6} ${pipeOutBendY} Z" fill="#546e7a"/>
+              <path d="M${pipeOutEndX - 6} ${pipeOutBendY} L${pipeOutEndX - 3} ${pipeOutBendY + 5} L${pipeOutEndX + 3} ${pipeOutBendY + 5} L${pipeOutEndX + 6} ${pipeOutBendY} Z" fill="#546e7a"/>
 
               <!-- ====== OUTFLOW WATER (when active) ====== -->
               ${isOutflow ? html`
-              <!-- Water inside horizontal pipe -->
-              <rect x="${cx + rx}" y="${pipeOutStartY - 2.5}" width="${pipeOutEndX - cx - rx}" height="5" rx="2" fill="${wMid}" opacity="0.75"/>
-              <!-- Animated flow marker H -->
-              <rect class="outflow-flow-h" x="${cx + rx}" y="${pipeOutStartY - 1.5}" width="${pipeOutEndX - cx - rx}" height="3" rx="1"
-                fill="url(#pg-${u})" opacity="0"  />
+              <!-- Water in horizontal pipe -->
+              <rect x="${cx + rx}" y="${pipeOutStartY - 2}" width="${pipeOutEndX - cx - rx}" height="4" fill="${wMid}" opacity="0.8"/>
               <line class="outflow-dash-h"
                 x1="${cx + rx}" y1="${pipeOutStartY}"
                 x2="${pipeOutEndX}" y2="${pipeOutStartY}"
                 stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
 
-              <!-- Water inside vertical pipe -->
-              <rect x="${pipeOutEndX - 2.5}" y="${pipeOutStartY}" width="5" height="${pipeOutBendY - pipeOutStartY + 3}" rx="2" fill="${wMid}" opacity="0.75"/>
+              <!-- Water in vertical pipe -->
+              <rect x="${pipeOutEndX - 2}" y="${pipeOutStartY}" width="4" height="${pipeOutBendY - pipeOutStartY + 3}" fill="${wMid}" opacity="0.8"/>
               <line class="outflow-dash-v"
                 x1="${pipeOutEndX}" y1="${pipeOutStartY}"
                 x2="${pipeOutEndX}" y2="${pipeOutBendY + 3}"
                 stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
 
-              <!-- Dripping water from nozzle -->
-              <circle class="drip d1" cx="${pipeOutEndX}" cy="${pipeOutBendY + 10}" r="2.5" fill="${wTop}" opacity="0.8"/>
-              <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 20}" r="2" fill="${wMid}" opacity="0.6"/>
-              <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 28}" r="1.5" fill="${wMid}" opacity="0.4"/>
-
-              <!-- Small puddle at bottom -->
-              <ellipse cx="${pipeOutEndX}" cy="${pipeOutBendY + 38}" rx="8" ry="2" fill="${wMid}" opacity="0.25"/>
+              <!-- Drips from nozzle -->
+              <circle class="drip d1" cx="${pipeOutEndX}" cy="${pipeOutBendY + 9}" r="2.5" fill="${wTop}" opacity="0.8"/>
+              <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="${wMid}" opacity="0.6"/>
+              <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="${wMid}" opacity="0.4"/>
               ` : ""}
 
               <!-- ====== 3D CYLINDER TANK ====== -->
               <g filter="url(#ts-${u})">
-                <!-- Back half of top ellipse (behind the water) -->
+
+                <!-- Back half of top ellipse -->
                 <path d="M${cx - rx} ${topY} A${rx} ${ry} 0 0 1 ${cx + rx} ${topY}" fill="var(--primary-text-color)" fill-opacity="0.06" stroke="var(--primary-text-color)" stroke-width="1.5" stroke-opacity="0.4"/>
 
-                <!-- Cylinder body -->
-                <g clip-path="url(#cylClip-${u})">
-                  <!-- Body fill -->
-                  <rect x="${cx - rx}" y="${topY}" width="${rx * 2}" height="${bodyH}" fill="url(#cyl-${u})"/>
+                <!-- Cylinder body fill -->
+                <rect x="${cx - rx}" y="${topY}" width="${rx * 2}" height="${bodyH}" fill="url(#cyl-${u})"/>
+                <!-- Left edge highlight -->
+                <rect x="${cx - rx}" y="${topY}" width="5" height="${bodyH}" fill="white" fill-opacity="0.05"/>
 
-                  <!-- Left edge highlight -->
-                  <rect x="${cx - rx}" y="${topY}" width="6" height="${bodyH}" fill="white" fill-opacity="0.06"/>
+                <!-- ====== WATER BODY (path-based, no clip-path!) ====== -->
+                ${wp > 0 ? html`
+                <!-- Water body: follows cylinder contour -->
+                <path d="
+                  M ${cx - rx + 2} ${waterSurfY}
+                  L ${cx - rx + 2} ${botY}
+                  A ${rx - 2} ${ry - 1} 0 0 0 ${cx + rx - 2} ${botY}
+                  L ${cx + rx - 2} ${waterSurfY}
+                  Z
+                " fill="url(#wg-${u})"/>
 
-                  <!-- ====== WATER BODY ====== -->
-                  ${wp > 0 ? html`
-                  <!-- Main water fill rectangle -->
-                  <rect x="${cx - rx + 2}" y="${waterSurfY}" width="${rx * 2 - 4}" height="${botY - waterSurfY}" fill="url(#wg-${u})"/>
+                <!-- Specular highlight on water -->
+                <path d="
+                  M ${cx - rx + 2} ${waterSurfY}
+                  L ${cx - rx + 2} ${botY}
+                  A ${rx - 2} ${ry - 1} 0 0 0 ${cx} ${botY + ry - 1}
+                  L ${cx} ${waterSurfY}
+                  Z
+                " fill="white" fill-opacity="0.08"/>
 
-                  <!-- Specular highlight on water -->
-                  <rect x="${cx - rx + 2}" y="${waterSurfY}" width="${rx * 2 - 4}" height="${botY - waterSurfY}" fill="url(#whl-${u})"/>
-
-                  <!-- Subtle caustic/ripple light patches -->
-                  <ellipse cx="${cx - 12}" cy="${waterSurfY + (botY - waterSurfY) * 0.35}" rx="18" ry="10" fill="white" fill-opacity="0.06"/>
-                  <ellipse cx="${cx + 18}" cy="${waterSurfY + (botY - waterSurfY) * 0.65}" rx="12" ry="8" fill="white" fill-opacity="0.04"/>
-                  ` : ""}
-                </g>
+                <!-- Caustic light patches -->
+                <ellipse cx="${cx - 10}" cy="${waterSurfY + (botY - waterSurfY) * 0.35}" rx="16" ry="8" fill="white" fill-opacity="0.05"/>
+                <ellipse cx="${cx + 16}" cy="${waterSurfY + (botY - waterSurfY) * 0.6}" rx="12" ry="6" fill="white" fill-opacity="0.04"/>
+                ` : ""}
 
                 <!-- Left wall -->
                 <line x1="${cx - rx}" y1="${topY}" x2="${cx - rx}" y2="${botY}" stroke="var(--primary-text-color)" stroke-width="1.8" stroke-opacity="0.45"/>
                 <!-- Right wall -->
                 <line x1="${cx + rx}" y1="${topY}" x2="${cx + rx}" y2="${botY}" stroke="var(--primary-text-color)" stroke-width="1.8" stroke-opacity="0.45"/>
 
-                <!-- Bottom ellipse (front half visible) -->
+                <!-- Bottom ellipse (front half) -->
                 <path d="M${cx - rx} ${botY} A${rx} ${ry} 0 0 0 ${cx + rx} ${botY}" fill="var(--primary-text-color)" fill-opacity="0.08" stroke="var(--primary-text-color)" stroke-width="1.5" stroke-opacity="0.4"/>
 
                 <!-- ====== WATER SURFACE ELLIPSE ====== -->
                 ${wp > 1 ? html`
-                <ellipse class="water-surface" cx="${cx}" cy="${waterSurfY}" rx="${rx - 2}" ry="${ry - 1}" fill="url(#wsurf-${u})" stroke="${wTop}" stroke-width="1" stroke-opacity="0.5"/>
-                <!-- Highlight arc on water surface -->
-                <ellipse cx="${cx - 8}" cy="${waterSurfY - 1}" rx="${rx * 0.5}" ry="${ry * 0.35}" fill="white" fill-opacity="0.12"/>
+                <ellipse class="water-surface" cx="${cx}" cy="${waterSurfY}" rx="${rx - 2}" ry="${ry - 1}"
+                  fill="url(#ws-${u})" stroke="${wTop}" stroke-width="1.2" stroke-opacity="0.6"/>
+                <!-- Highlight on water surface -->
+                <ellipse cx="${cx - 6}" cy="${waterSurfY - 1}" rx="${rx * 0.45}" ry="${ry * 0.3}"
+                  fill="white" fill-opacity="0.15"/>
                 ` : ""}
 
                 <!-- Bottom ellipse water fill (front arc) -->
                 ${wp > 0 ? html`
-                <path d="M${cx - rx + 2} ${botY} A${rx - 2} ${ry - 1} 0 0 0 ${cx + rx - 2} ${botY}" fill="${wBot}" fill-opacity="0.8"/>
+                <path d="M${cx - rx + 2} ${botY} A${rx - 2} ${ry - 1} 0 0 0 ${cx + rx - 2} ${botY}" fill="${wBot}" fill-opacity="0.7"/>
                 ` : ""}
 
-                <!-- Front half of top ellipse (rim) -->
+                <!-- Front half of top rim -->
                 <path d="M${cx - rx} ${topY} A${rx} ${ry} 0 0 0 ${cx + rx} ${topY}" fill="none" stroke="var(--primary-text-color)" stroke-width="1.8" stroke-opacity="0.5"/>
 
                 <!-- Rim highlight -->
-                <path d="M${cx - rx + 10} ${topY + ry * 0.6} A${rx - 10} ${ry * 0.4} 0 0 0 ${cx + rx - 10} ${topY + ry * 0.6}" fill="none" stroke="white" stroke-width="0.8" stroke-opacity="0.15"/>
+                <path d="M${cx - rx + 12} ${topY + ry * 0.55} A${rx - 12} ${ry * 0.35} 0 0 0 ${cx + rx - 12} ${topY + ry * 0.55}" fill="none" stroke="white" stroke-width="0.8" stroke-opacity="0.15"/>
 
                 <!-- Bubbles inside water -->
                 ${wp > 8 ? html`
-                <circle class="bubble b1" cx="${cx - 18}" cy="${botY - 15}" r="2" fill="white" opacity="0.3"/>
-                <circle class="bubble b2" cx="${cx + 10}" cy="${botY - 10}" r="1.5" fill="white" opacity="0.25"/>
-                <circle class="bubble b3" cx="${cx + 25}" cy="${botY - 22}" r="2.2" fill="white" opacity="0.2"/>
-                <circle class="bubble b4" cx="${cx - 5}" cy="${botY - 8}" r="1.8" fill="white" opacity="0.28"/>
-                <circle class="bubble b5" cx="${cx + 15}" cy="${botY - 30}" r="1.2" fill="white" opacity="0.18"/>
+                <circle class="bubble b1" cx="${cx - 16}" cy="${botY - 15}" r="2" fill="white" opacity="0.3"/>
+                <circle class="bubble b2" cx="${cx + 12}" cy="${botY - 10}" r="1.5" fill="white" opacity="0.25"/>
+                <circle class="bubble b3" cx="${cx + 24}" cy="${botY - 22}" r="2.2" fill="white" opacity="0.2"/>
+                <circle class="bubble b4" cx="${cx - 6}" cy="${botY - 8}" r="1.8" fill="white" opacity="0.28"/>
+                <circle class="bubble b5" cx="${cx + 18}" cy="${botY - 30}" r="1.2" fill="white" opacity="0.18"/>
                 ` : ""}
               </g>
 
@@ -335,27 +338,25 @@ class WaterTankCard extends LitElement {
               ${inflowRate > 0 ? html`
               <line class="flow-stream"
                 x1="${pipeInEndX}" y1="${topY + ry + 2}"
-                x2="${pipeInEndX}" y2="${Math.min(waterSurfY, botY - 5)}"
+                x2="${pipeInEndX}" y2="${Math.min(waterSurfY - 2, botY - 5)}"
                 stroke="${wTop}" stroke-width="5" stroke-linecap="round"
                 stroke-dasharray="6 8" opacity="0.85"/>
               <!-- Splash -->
-              <circle class="splash s1" cx="${pipeInEndX - 7}" cy="${waterSurfY}" r="2" fill="${wTop}" opacity="0.6"/>
-              <circle class="splash s2" cx="${pipeInEndX + 6}" cy="${waterSurfY - 2}" r="1.8" fill="${wTop}" opacity="0.5"/>
-              <circle class="splash s3" cx="${pipeInEndX - 3}" cy="${waterSurfY - 5}" r="1.3" fill="${wTop}" opacity="0.4"/>
+              <circle class="splash s1" cx="${pipeInEndX - 8}" cy="${waterSurfY}" r="2" fill="${wTop}" opacity="0.6"/>
+              <circle class="splash s2" cx="${pipeInEndX + 7}" cy="${waterSurfY - 2}" r="1.8" fill="${wTop}" opacity="0.5"/>
+              <circle class="splash s3" cx="${pipeInEndX - 4}" cy="${waterSurfY - 5}" r="1.3" fill="${wTop}" opacity="0.4"/>
               <circle class="splash s4" cx="${pipeInEndX + 10}" cy="${waterSurfY - 1}" r="1.5" fill="${wTop}" opacity="0.5"/>
               ` : ""}
 
-              <!-- ====== LEVEL MARKERS ====== -->
+              <!-- Level markers -->
               ${[25, 50, 75].map(lvl => {
-                const markerY = botY - (bodyH * lvl / 100);
-                return html`
-                  <line x1="${cx - rx + 3}" y1="${markerY}" x2="${cx - rx + 11}" y2="${markerY}" stroke="var(--primary-text-color)" stroke-width="0.5" stroke-opacity="0.25"/>
-                `;
+                const mY = botY - (bodyH * lvl / 100);
+                return html`<line x1="${cx - rx + 3}" y1="${mY}" x2="${cx - rx + 11}" y2="${mY}" stroke="var(--primary-text-color)" stroke-width="0.5" stroke-opacity="0.25"/>`;
               })}
             </svg>
 
-            <!-- OVERLAYS -->
-            <div class="tank-overlay" style="top: ${((topY + (botY - (bodyH * wp / 100))) / 2 + (botY) / 2) / 2 / 200 * 100}%;">
+            <!-- Percentage / Temp overlay -->
+            <div class="tank-overlay">
               <div class="percentage ${isLowWarning ? 'low' : ''}">${percentage.toFixed(0)}<span class="pct">%</span></div>
               ${displayTemp !== null ? html`
                 <div class="temperature ${isTempWarning ? 'warn' : ''}">${displayTemp.toFixed(1)}${displayTempUnit}</div>
@@ -371,7 +372,6 @@ class WaterTankCard extends LitElement {
                 </svg>
               </div>
             ` : ""}
-
             ${isLowWarning ? html`
               <div class="warning-icon low-warning">
                 <svg viewBox="0 0 40 40" width="30" height="30">
@@ -457,19 +457,18 @@ class WaterTankCard extends LitElement {
         height: 100%;
       }
 
-      /* ====== WATER SURFACE WOBBLE ====== */
+      /* Water surface wobble */
       .water-surface {
         animation: wobble 3s ease-in-out infinite alternate;
         transform-origin: center;
       }
-
       @keyframes wobble {
         0%   { transform: scaleX(0.97); }
         50%  { transform: scaleX(1.02); }
         100% { transform: scaleX(0.97); }
       }
 
-      /* ====== BUBBLE ANIMATION ====== */
+      /* Bubbles */
       .bubble {
         animation: rise 4s ease-in infinite;
       }
@@ -477,70 +476,62 @@ class WaterTankCard extends LitElement {
       .bubble.b3 { animation-delay: 2.2s; animation-duration: 5s; }
       .bubble.b4 { animation-delay: 0.5s; animation-duration: 3s; }
       .bubble.b5 { animation-delay: 3s; animation-duration: 4.5s; }
-
       @keyframes rise {
         0%   { transform: translateY(0); opacity: 0.3; }
         50%  { opacity: 0.15; }
         100% { transform: translateY(-70px); opacity: 0; }
       }
 
-      /* ====== INFLOW STREAM ====== */
+      /* Inflow stream */
       .flow-stream {
         animation: flowDash 0.7s linear infinite;
       }
-
       @keyframes flowDash {
         0%   { stroke-dashoffset: 0; }
         100% { stroke-dashoffset: -14; }
       }
 
-      /* ====== OUTFLOW WATER DASHES ====== */
+      /* Outflow dashes */
       .outflow-dash-h {
-        animation: outflowH 0.5s linear infinite;
+        animation: outDash 0.5s linear infinite;
       }
       .outflow-dash-v {
-        animation: outflowV 0.5s linear infinite;
+        animation: outDash 0.5s linear infinite;
       }
-
-      @keyframes outflowH {
-        0%   { stroke-dashoffset: 0; }
-        100% { stroke-dashoffset: -10; }
-      }
-      @keyframes outflowV {
+      @keyframes outDash {
         0%   { stroke-dashoffset: 0; }
         100% { stroke-dashoffset: -10; }
       }
 
-      /* ====== SPLASH ====== */
+      /* Splash */
       .splash {
         animation: splashOut 1.2s ease-out infinite;
       }
       .splash.s2 { animation-delay: 0.3s; }
       .splash.s3 { animation-delay: 0.6s; }
       .splash.s4 { animation-delay: 0.15s; }
-
       @keyframes splashOut {
         0%   { transform: translate(0, 0) scale(1); opacity: 0.7; }
         50%  { transform: translate(0, -8px) scale(1.3); opacity: 0.3; }
         100% { transform: translate(0, -3px) scale(0.4); opacity: 0; }
       }
 
-      /* ====== DRIP ANIMATION ====== */
+      /* Drips */
       .drip {
         animation: dripFall 1.4s ease-in infinite;
       }
       .drip.d2 { animation-delay: 0.5s; }
       .drip.d3 { animation-delay: 1s; }
-
       @keyframes dripFall {
         0%   { transform: translateY(0); opacity: 0.8; }
         50%  { opacity: 0.5; }
         100% { transform: translateY(20px); opacity: 0; }
       }
 
-      /* ====== OVERLAY TEXT ====== */
+      /* Overlay */
       .tank-overlay {
         position: absolute;
+        top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
@@ -550,7 +541,6 @@ class WaterTankCard extends LitElement {
           0 1px 4px rgba(0,0,0,0.8),
           0 0 12px rgba(0,0,0,0.3);
         pointer-events: none;
-        transition: top 1s ease;
       }
       
       .percentage {
@@ -579,32 +569,29 @@ class WaterTankCard extends LitElement {
         color: #fbbf24;
       }
       
-      /* ====== WARNINGS ====== */
+      /* Warnings */
       .warning-icon {
         position: absolute;
         z-index: 20;
         animation: pulse 1.5s ease-in-out infinite;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
       }
-      
       .temp-warning {
         top: 5px;
         left: 50%;
         transform: translateX(-50%);
       }
-      
       .low-warning {
         bottom: 45px;
         left: 50%;
         transform: translateX(-50%);
       }
-      
       @keyframes pulse {
         0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
         50% { opacity: 0.5; transform: translateX(-50%) scale(0.9); }
       }
       
-      /* ====== INFO BAR ====== */
+      /* Info bar */
       .info-bar {
         display: flex;
         justify-content: center;
@@ -630,12 +617,10 @@ class WaterTankCard extends LitElement {
         opacity: 1;
         animation: pulse-icon 2s ease-in-out infinite;
       }
-
       @keyframes pulse-icon {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.4; }
       }
-
       .stat-data {
         display: flex;
         flex-direction: column;
