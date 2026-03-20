@@ -2,8 +2,9 @@
 
 A high-performance, visually appealing Home Assistant custom card for monitoring water tanks. It features dynamic animations for rain inflow and usage outflow, temperature-based color shifting, and safety warnings.
 
-![Water Tank Card](https://github.com/user-attachments/assets/placeholder)
-
+[Water Tank Card](https://github.com/mong00se007/water_tank/blob/main/normal.png)
+[Water Tank Card](https://github.com/mong00se007/water_tank/blob/main/hot.png)
+[Water Tank Card](https://github.com/mong00se007/water_tank/blob/main/empty.png)
 ## Features
 - **Dynamic Water Level**: Real-time visualization of tank volume.
 - **Graphic Pipes**: Visual pipes for inflow (top) and outflow (bottom) that animate when active.
