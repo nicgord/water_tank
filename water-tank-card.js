@@ -209,7 +209,7 @@ class WaterTankCard extends LitElement {
                 </linearGradient>
               </defs>
 
-              <g display="${showPipesDisplay}">
+              ${showPipes ? html`
                 <!-- INFLOW PIPE -->
                 <rect x="8" y="${pipeInY - 5}" width="${pipeInEndX - 8}" height="10" rx="2" fill="url(#pg-${u})"/>
                 <rect x="${pipeInEndX - 5}" y="${pipeInY}" width="10" height="${topY - pipeInY + ry + 2}" rx="2" fill="url(#pg-${u})"/>
@@ -233,7 +233,7 @@ class WaterTankCard extends LitElement {
                   <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="#0284c7" opacity="0.6"/>
                   <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="#0284c7" opacity="0.4"/>
                 </g>
-              </g>
+              ` : ""}
 
               <!-- 3D CYLINDER -->
               <g filter="url(#sh-${u})">
@@ -285,7 +285,7 @@ class WaterTankCard extends LitElement {
                 </g>
               </g>
 
-              <g display="${showPipesDisplay}">
+              ${showPipes ? html`
                 <!-- INFLOW STREAM (always in DOM, toggled via display) -->
                 <g display="${showInflow}">
                   <line class="flow-stream" x1="${pipeInEndX}" y1="${topY + ry + 2}" x2="${pipeInEndX}" y2="${inflowEndY}" stroke="${wTop}" stroke-width="5" stroke-linecap="round" stroke-dasharray="6 8" opacity="0.85"/>
@@ -293,7 +293,7 @@ class WaterTankCard extends LitElement {
                   <circle class="splash s2" cx="${pipeInEndX + 7}" cy="${waterSurfY - 2}" r="1.8" fill="${wTop}" opacity="0.5"/>
                   <circle class="splash s3" cx="${pipeInEndX + 10}" cy="${waterSurfY - 1}" r="1.5" fill="${wTop}" opacity="0.5"/>
                 </g>
-              </g>
+              ` : ""}
 
               <!-- Level markers -->
               <line x1="${cx - rx + 3}" y1="${botY - bodyH * 0.25}" x2="${cx - rx + 11}" y2="${botY - bodyH * 0.25}" stroke="var(--primary-text-color)" stroke-width="0.5" stroke-opacity="0.25"/>
