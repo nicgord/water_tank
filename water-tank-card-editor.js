@@ -52,7 +52,7 @@ class WaterTankCardEditor extends LitElement {
                         @input=${this._valueChanged}
                     ></ha-textfield>
                 </div>
-                 <div class="option">
+                <div class="option">
                     <ha-textfield
                         label="Low Level Threshold (%)"
                         .value=${this.config.low_level_threshold || 10}
@@ -60,6 +60,24 @@ class WaterTankCardEditor extends LitElement {
                         type="number"
                         @input=${this._valueChanged}
                     ></ha-textfield>
+                </div>
+                <div class="option">
+                    <ha-formfield label="Show Today's Inflow">
+                        <ha-switch
+                            .checked=${this.config.show_today_inflow !== false}
+                            .configValue=${"show_today_inflow"}
+                            @change=${this._valueChanged}
+                        ></ha-switch>
+                    </ha-formfield>
+                </div>
+                <div class="option">
+                    <ha-formfield label="Show Pipes & Flow Animation">
+                        <ha-switch
+                            .checked=${this.config.show_pipes !== false}
+                            .configValue=${"show_pipes"}
+                            @change=${this._valueChanged}
+                        ></ha-switch>
+                    </ha-formfield>
                 </div>
 
             </div>
