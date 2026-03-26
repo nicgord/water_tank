@@ -135,8 +135,8 @@ class WaterTankCard extends LitElement {
     const u = this._uid;
     const showTodayInflowStat = this.config.show_today_inflow !== false;
     const showPipes = this.config.show_pipes !== false;
-    const showRainRateStat = inflowRate > 0;
-    const showInfoBar = showTodayInflowStat || showRainRateStat;
+    const showRainRateStat = showTodayInflowStat && inflowRate > 0;
+    const showInfoBar = showTodayInflowStat;
 
     /* ============ GEOMETRY ============ */
     const cx = 100;

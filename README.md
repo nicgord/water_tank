@@ -69,7 +69,7 @@ show_pipes: true
 | `us_units` | boolean | false | Toggle to use US Units (Gallons, ft², °F). |
 | `warning_threshold` | number | 20 | Temperature threshold for alert (°C). |
 | `low_level_threshold` | number | 10 | Low water level threshold (%). |
-| `show_today_inflow` | boolean | true | Show/hide the "Today's Inflow" stat row. |
+| `show_today_inflow` | boolean | true | Show/hide the inflow stats section ("Today's Inflow" and Rain Rate). |
 | `show_pipes` | boolean | true | Show/hide the inflow/outflow pipes and flow animations. |
 
 ## License
