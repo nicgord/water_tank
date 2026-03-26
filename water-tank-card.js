@@ -167,6 +167,7 @@ class WaterTankCard extends LitElement {
     const showOutflow = isOutflow ? "inline" : "none";
     const showBubbles = wp > 8 ? "inline" : "none";
     const showCaustics = waterH > 25 ? "inline" : "none";
+    const showPipesDisplay = showPipes ? "inline" : "none";
 
     // Water body path with curved bottom
     const waterBodyPath = `M${wL} ${waterSurfY} L${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY} L${wR} ${waterSurfY} Z`;
