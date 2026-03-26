@@ -52,6 +52,8 @@ roof_size: 100
 us_units: false
 warning_threshold: 20
 low_level_threshold: 10
+show_today_inflow: true
+show_pipes: true
 ```
 
 | Name | Type | Default | Description |
@@ -67,6 +69,8 @@ low_level_threshold: 10
 | `us_units` | boolean | false | Toggle to use US Units (Gallons, ft², °F). |
 | `warning_threshold` | number | 20 | Temperature threshold for alert (°C). |
 | `low_level_threshold` | number | 10 | Low water level threshold (%). |
+| `show_today_inflow` | boolean | true | Show/hide the "Today's Inflow" stat row. |
+| `show_pipes` | boolean | true | Show/hide the inflow/outflow pipes and flow animations. |
 
 ## License
 MIT
