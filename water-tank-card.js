@@ -26,6 +26,8 @@ class WaterTankCard extends LitElement {
       us_units: false,
       warning_threshold: 20,
       low_level_threshold: 10,
+      show_today_inflow: true,
+      show_pipes: true,
       name: "Water Tank",
     };
   }
@@ -131,6 +133,10 @@ class WaterTankCard extends LitElement {
 
     const wp = percentage;
     const u = this._uid;
+    const showTodayInflowStat = this.config.show_today_inflow !== false;
+    const showPipes = this.config.show_pipes !== false;
+    const showRainRateStat = showTodayInflowStat && inflowRate > 0;
+    const showInfoBar = showTodayInflowStat;
 
     /* ============ GEOMETRY ============ */
     const cx = 100;
@@ -161,6 +167,7 @@ class WaterTankCard extends LitElement {
     const showOutflow = isOutflow ? "inline" : "none";
     const showBubbles = wp > 8 ? "inline" : "none";
     const showCaustics = waterH > 25 ? "inline" : "none";
+    const showPipesDisplay = showPipes ? "inline" : "none";
 
     // Water body path with curved bottom
     const waterBodyPath = `M${wL} ${waterSurfY} L${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY} L${wR} ${waterSurfY} Z`;
@@ -202,28 +209,30 @@ class WaterTankCard extends LitElement {
                 </linearGradient>
               </defs>
 
-              <!-- INFLOW PIPE -->
-              <rect x="8" y="${pipeInY - 5}" width="${pipeInEndX - 8}" height="10" rx="2" fill="url(#pg-${u})"/>
-              <rect x="${pipeInEndX - 5}" y="${pipeInY}" width="10" height="${topY - pipeInY + ry + 2}" rx="2" fill="url(#pg-${u})"/>
-              <circle cx="${pipeInEndX}" cy="${pipeInY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
-              <circle cx="${pipeInEndX}" cy="${pipeInY}" r="3" fill="#b0bec5"/>
-              <rect x="5" y="${pipeInY - 7}" width="6" height="14" rx="2" fill="#546e7a"/>
+              <g display="${showPipesDisplay}">
+                <!-- INFLOW PIPE -->
+                <rect x="8" y="${pipeInY - 5}" width="${pipeInEndX - 8}" height="10" rx="2" fill="url(#pg-${u})"/>
+                <rect x="${pipeInEndX - 5}" y="${pipeInY}" width="10" height="${topY - pipeInY + ry + 2}" rx="2" fill="url(#pg-${u})"/>
+                <circle cx="${pipeInEndX}" cy="${pipeInY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
+                <circle cx="${pipeInEndX}" cy="${pipeInY}" r="3" fill="#b0bec5"/>
+                <rect x="5" y="${pipeInY - 7}" width="6" height="14" rx="2" fill="#546e7a"/>
 
-              <!-- OUTFLOW PIPE -->
-              <rect x="${cx + rx - 3}" y="${pipeOutStartY - 5}" width="${pipeOutEndX - cx - rx + 6}" height="10" rx="2" fill="url(#pg-${u})"/>
-              <rect x="${pipeOutEndX - 5}" y="${pipeOutStartY}" width="10" height="${pipeOutBendY - pipeOutStartY}" rx="2" fill="url(#pg-${u})"/>
-              <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
-              <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="3" fill="#b0bec5"/>
+                <!-- OUTFLOW PIPE -->
+                <rect x="${cx + rx - 3}" y="${pipeOutStartY - 5}" width="${pipeOutEndX - cx - rx + 6}" height="10" rx="2" fill="url(#pg-${u})"/>
+                <rect x="${pipeOutEndX - 5}" y="${pipeOutStartY}" width="10" height="${pipeOutBendY - pipeOutStartY}" rx="2" fill="url(#pg-${u})"/>
+                <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="7" fill="url(#pg-${u})" stroke="#546e7a" stroke-width="0.8"/>
+                <circle cx="${pipeOutEndX}" cy="${pipeOutStartY}" r="3" fill="#b0bec5"/>
 
-              <!-- OUTFLOW WATER (always in DOM, toggled via display) -->
-              <g display="${showOutflow}">
-                <rect x="${cx + rx}" y="${pipeOutStartY - 2}" width="${pipeOutEndX - cx - rx}" height="4" fill="#0284c7" opacity="0.85"/>
-                <line class="outflow-dash-h" x1="${cx + rx}" y1="${pipeOutStartY}" x2="${pipeOutEndX}" y2="${pipeOutStartY}" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
-                <rect x="${pipeOutEndX - 2}" y="${pipeOutStartY}" width="4" height="${pipeOutBendY - pipeOutStartY + 3}" fill="#0284c7" opacity="0.85"/>
-                <line class="outflow-dash-v" x1="${pipeOutEndX}" y1="${pipeOutStartY}" x2="${pipeOutEndX}" y2="${pipeOutBendY + 3}" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
-                <circle class="drip d1" cx="${pipeOutEndX}" cy="${pipeOutBendY + 9}" r="2.5" fill="#22d3ee" opacity="0.8"/>
-                <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="#0284c7" opacity="0.6"/>
-                <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="#0284c7" opacity="0.4"/>
+                <!-- OUTFLOW WATER (always in DOM, toggled via display) -->
+                <g display="${showOutflow}">
+                  <rect x="${cx + rx}" y="${pipeOutStartY - 2}" width="${pipeOutEndX - cx - rx}" height="4" fill="#0284c7" opacity="0.85"/>
+                  <line class="outflow-dash-h" x1="${cx + rx}" y1="${pipeOutStartY}" x2="${pipeOutEndX}" y2="${pipeOutStartY}" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
+                  <rect x="${pipeOutEndX - 2}" y="${pipeOutStartY}" width="4" height="${pipeOutBendY - pipeOutStartY + 3}" fill="#0284c7" opacity="0.85"/>
+                  <line class="outflow-dash-v" x1="${pipeOutEndX}" y1="${pipeOutStartY}" x2="${pipeOutEndX}" y2="${pipeOutBendY + 3}" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
+                  <circle class="drip d1" cx="${pipeOutEndX}" cy="${pipeOutBendY + 9}" r="2.5" fill="#22d3ee" opacity="0.8"/>
+                  <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="#0284c7" opacity="0.6"/>
+                  <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="#0284c7" opacity="0.4"/>
+                </g>
               </g>
 
               <!-- 3D CYLINDER -->
@@ -276,12 +285,14 @@ class WaterTankCard extends LitElement {
                 </g>
               </g>
 
-              <!-- INFLOW STREAM (always in DOM, toggled via display) -->
-              <g display="${showInflow}">
-                <line class="flow-stream" x1="${pipeInEndX}" y1="${topY + ry + 2}" x2="${pipeInEndX}" y2="${inflowEndY}" stroke="${wTop}" stroke-width="5" stroke-linecap="round" stroke-dasharray="6 8" opacity="0.85"/>
-                <circle class="splash s1" cx="${pipeInEndX - 8}" cy="${waterSurfY}" r="2" fill="${wTop}" opacity="0.6"/>
-                <circle class="splash s2" cx="${pipeInEndX + 7}" cy="${waterSurfY - 2}" r="1.8" fill="${wTop}" opacity="0.5"/>
-                <circle class="splash s3" cx="${pipeInEndX + 10}" cy="${waterSurfY - 1}" r="1.5" fill="${wTop}" opacity="0.5"/>
+              <g display="${showPipesDisplay}">
+                <!-- INFLOW STREAM (always in DOM, toggled via display) -->
+                <g display="${showInflow}">
+                  <line class="flow-stream" x1="${pipeInEndX}" y1="${topY + ry + 2}" x2="${pipeInEndX}" y2="${inflowEndY}" stroke="${wTop}" stroke-width="5" stroke-linecap="round" stroke-dasharray="6 8" opacity="0.85"/>
+                  <circle class="splash s1" cx="${pipeInEndX - 8}" cy="${waterSurfY}" r="2" fill="${wTop}" opacity="0.6"/>
+                  <circle class="splash s2" cx="${pipeInEndX + 7}" cy="${waterSurfY - 2}" r="1.8" fill="${wTop}" opacity="0.5"/>
+                  <circle class="splash s3" cx="${pipeInEndX + 10}" cy="${waterSurfY - 1}" r="1.5" fill="${wTop}" opacity="0.5"/>
+                </g>
               </g>
 
               <!-- Level markers -->
@@ -316,28 +327,32 @@ class WaterTankCard extends LitElement {
             ` : ""}
           </div>
 
-          <div class="info-bar">
-            <div class="stat">
-              <div class="stat-icon">
-                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg>
-              </div>
-              <div class="stat-data">
-                <span class="label">Today's Inflow</span>
-                <span class="value">${displayRainTotal.toFixed(1)} ${displayRainUnit}</span>
-              </div>
+          ${showInfoBar ? html`
+            <div class="info-bar">
+              ${showTodayInflowStat ? html`
+                <div class="stat">
+                  <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg>
+                  </div>
+                  <div class="stat-data">
+                    <span class="label">Today's Inflow</span>
+                    <span class="value">${displayRainTotal.toFixed(1)} ${displayRainUnit}</span>
+                  </div>
+                </div>
+              ` : ""}
+              ${showRainRateStat ? html`
+                <div class="stat">
+                  <div class="stat-icon active">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg>
+                  </div>
+                  <div class="stat-data">
+                    <span class="label">Rain Rate</span>
+                    <span class="value">${inflowRate.toFixed(1)} mm/h</span>
+                  </div>
+                </div>
+              ` : ""}
             </div>
-            ${inflowRate > 0 ? html`
-            <div class="stat">
-              <div class="stat-icon active">
-                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg>
-              </div>
-              <div class="stat-data">
-                <span class="label">Rain Rate</span>
-                <span class="value">${inflowRate.toFixed(1)} mm/h</span>
-              </div>
-            </div>
-            ` : ""}
-          </div>
+          ` : ""}
         </div>
       </ha-card>
     `;
