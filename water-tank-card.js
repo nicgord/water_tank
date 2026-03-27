@@ -4,8 +4,8 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-// Version 23.3 - Optional UI toggles and robust boolean handling
-console.info("%c WATER-TANK-CARD %c v23.3.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
+// Version 23.4 - Optional wide tank mode
+console.info("%c WATER-TANK-CARD %c v23.4.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
 
 class WaterTankCard extends LitElement {
   static get properties() {
@@ -28,6 +28,7 @@ class WaterTankCard extends LitElement {
       low_level_threshold: 10,
       show_today_inflow: true,
       show_pipes: true,
+      wide_tank: false,
       name: "Water Tank",
     };
   }
@@ -148,12 +149,13 @@ class WaterTankCard extends LitElement {
     const u = this._uid;
     const showTodayInflowStat = this._asBoolean(this.config.show_today_inflow, true);
     const showPipes = this._asBoolean(this.config.show_pipes, true);
+    const isWideTank = this._asBoolean(this.config.wide_tank, false);
     const showRainRateStat = showTodayInflowStat && inflowRate > 0;
     const showInfoBar = showTodayInflowStat;
 
     /* ============ GEOMETRY ============ */
     const cx = 100;
-    const rx = 46;
+    const rx = isWideTank ? 58 : 46;
     const ry = 13;
     const topY = 38;
     const botY = 155;
@@ -181,6 +183,7 @@ class WaterTankCard extends LitElement {
     const showBubbles = wp > 8 ? "inline" : "none";
     const showCaustics = waterH > 25 ? "inline" : "none";
     const showPipesDisplay = showPipes ? "inline" : "none";
+    const tankContainerWidth = isWideTank ? 280 : 240;
 
     // Water body path with curved bottom
     const waterBodyPath = `M${wL} ${waterSurfY} L${wL} ${botY} A${wRx} ${wRy} 0 0 0 ${wR} ${botY} L${wR} ${waterSurfY} Z`;
@@ -197,7 +200,7 @@ class WaterTankCard extends LitElement {
             <span>${this.config.name || "Water Tank"}</span>
           </div>
           
-          <div class="tank-container">
+          <div class="tank-container" style="width: ${tankContainerWidth}px;">
             <svg class="tank-svg" viewBox="0 0 200 200" style="overflow: visible;">
               <defs>
                 <linearGradient id="pg-${u}" x1="0%" y1="0%" x2="0%" y2="100%">

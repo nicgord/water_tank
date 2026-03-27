@@ -44,6 +44,19 @@ class WaterTankCardEditor extends LitElement {
         return defaultValue;
     }
 
+    _asBoolean(value, defaultValue = true) {
+        if (value === undefined || value === null) {
+            return defaultValue;
+        }
+        if (typeof value === "boolean") {
+            return value;
+        }
+        const normalized = String(value).toLowerCase().trim();
+        if (["true", "1", "on", "yes"].includes(normalized)) return true;
+        if (["false", "0", "off", "no"].includes(normalized)) return false;
+        return defaultValue;
+    }
+
     render() {
         if (!this.hass || !this.config) {
             return html``;
@@ -101,6 +114,15 @@ class WaterTankCardEditor extends LitElement {
                         <ha-checkbox
                             .checked=${this._asBoolean(this.config.show_pipes, true)}
                             .configValue=${"show_pipes"}
+                            @change=${this._valueChanged}
+                        ></ha-checkbox>
+                    </ha-formfield>
+                </div>
+                <div class="option">
+                    <ha-formfield label="Use Wide Tank">
+                        <ha-checkbox
+                            .checked=${this._asBoolean(this.config.wide_tank, false)}
+                            .configValue=${"wide_tank"}
                             @change=${this._valueChanged}
                         ></ha-checkbox>
                     </ha-formfield>
