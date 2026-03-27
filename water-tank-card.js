@@ -4,8 +4,8 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-// Version 23.2 - Bottom arc fix, blue outflow
-console.info("%c WATER-TANK-CARD %c v23.2.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
+// Version 23.3 - Optional UI toggles and robust boolean handling
+console.info("%c WATER-TANK-CARD %c v23.3.0 ", "color: white; background: #0ea5e9; font-weight: 700;", "color: #0ea5e9; background: white; font-weight: 700;");
 
 class WaterTankCard extends LitElement {
   static get properties() {
@@ -43,6 +43,19 @@ class WaterTankCard extends LitElement {
     }
     this.config = config;
     this._uid = 'wtc' + config.entity.replace(/[^a-z0-9]/gi, '').substr(0, 10);
+  }
+
+  _asBoolean(value, defaultValue = true) {
+    if (value === undefined || value === null) {
+      return defaultValue;
+    }
+    if (typeof value === "boolean") {
+      return value;
+    }
+    const normalized = String(value).toLowerCase().trim();
+    if (["true", "1", "on", "yes"].includes(normalized)) return true;
+    if (["false", "0", "off", "no"].includes(normalized)) return false;
+    return defaultValue;
   }
 
   render() {
@@ -133,8 +146,8 @@ class WaterTankCard extends LitElement {
 
     const wp = percentage;
     const u = this._uid;
-    const showTodayInflowStat = this.config.show_today_inflow !== false;
-    const showPipes = this.config.show_pipes !== false;
+    const showTodayInflowStat = this._asBoolean(this.config.show_today_inflow, true);
+    const showPipes = this._asBoolean(this.config.show_pipes, true);
     const showRainRateStat = showTodayInflowStat && inflowRate > 0;
     const showInfoBar = showTodayInflowStat;
 
@@ -209,7 +222,7 @@ class WaterTankCard extends LitElement {
                 </linearGradient>
               </defs>
 
-              ${showPipes ? html`
+              <g display="${showPipesDisplay}">
                 <!-- INFLOW PIPE -->
                 <rect x="8" y="${pipeInY - 5}" width="${pipeInEndX - 8}" height="10" rx="2" fill="url(#pg-${u})"/>
                 <rect x="${pipeInEndX - 5}" y="${pipeInY}" width="10" height="${topY - pipeInY + ry + 2}" rx="2" fill="url(#pg-${u})"/>
@@ -233,7 +246,7 @@ class WaterTankCard extends LitElement {
                   <circle class="drip d2" cx="${pipeOutEndX}" cy="${pipeOutBendY + 18}" r="2" fill="#0284c7" opacity="0.6"/>
                   <circle class="drip d3" cx="${pipeOutEndX}" cy="${pipeOutBendY + 26}" r="1.5" fill="#0284c7" opacity="0.4"/>
                 </g>
-              ` : ""}
+              </g>
 
               <!-- 3D CYLINDER -->
               <g filter="url(#sh-${u})">
@@ -285,7 +298,7 @@ class WaterTankCard extends LitElement {
                 </g>
               </g>
 
-              ${showPipes ? html`
+              <g display="${showPipesDisplay}">
                 <!-- INFLOW STREAM (always in DOM, toggled via display) -->
                 <g display="${showInflow}">
                   <line class="flow-stream" x1="${pipeInEndX}" y1="${topY + ry + 2}" x2="${pipeInEndX}" y2="${inflowEndY}" stroke="${wTop}" stroke-width="5" stroke-linecap="round" stroke-dasharray="6 8" opacity="0.85"/>
@@ -293,7 +306,7 @@ class WaterTankCard extends LitElement {
                   <circle class="splash s2" cx="${pipeInEndX + 7}" cy="${waterSurfY - 2}" r="1.8" fill="${wTop}" opacity="0.5"/>
                   <circle class="splash s3" cx="${pipeInEndX + 10}" cy="${waterSurfY - 1}" r="1.5" fill="${wTop}" opacity="0.5"/>
                 </g>
-              ` : ""}
+              </g>
 
               <!-- Level markers -->
               <line x1="${cx - rx + 3}" y1="${botY - bodyH * 0.25}" x2="${cx - rx + 11}" y2="${botY - bodyH * 0.25}" stroke="var(--primary-text-color)" stroke-width="0.5" stroke-opacity="0.25"/>

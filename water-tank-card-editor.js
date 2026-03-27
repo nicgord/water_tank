@@ -18,6 +18,19 @@ class WaterTankCardEditor extends LitElement {
         this.config = config;
     }
 
+    _asBoolean(value, defaultValue = true) {
+        if (value === undefined || value === null) {
+            return defaultValue;
+        }
+        if (typeof value === "boolean") {
+            return value;
+        }
+        const normalized = String(value).toLowerCase().trim();
+        if (["true", "1", "on", "yes"].includes(normalized)) return true;
+        if (["false", "0", "off", "no"].includes(normalized)) return false;
+        return defaultValue;
+    }
+
     render() {
         if (!this.hass || !this.config) {
             return html``;
@@ -64,7 +77,7 @@ class WaterTankCardEditor extends LitElement {
                 <div class="option">
                     <ha-formfield label="Show Today's Inflow">
                         <ha-switch
-                            .checked=${this.config.show_today_inflow !== false}
+                            .checked=${this._asBoolean(this.config.show_today_inflow, true)}
                             .configValue=${"show_today_inflow"}
                             @change=${this._valueChanged}
                         ></ha-switch>
@@ -73,7 +86,7 @@ class WaterTankCardEditor extends LitElement {
                 <div class="option">
                     <ha-formfield label="Show Pipes & Flow Animation">
                         <ha-switch
-                            .checked=${this.config.show_pipes !== false}
+                            .checked=${this._asBoolean(this.config.show_pipes, true)}
                             .configValue=${"show_pipes"}
                             @change=${this._valueChanged}
                         ></ha-switch>
