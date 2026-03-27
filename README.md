@@ -11,6 +11,7 @@ A high-performance, visually appealing Home Assistant custom card for monitoring
 ## Features
 - **Dynamic Water Level**: Real-time visualization of tank volume.
 - **Graphic Pipes**: Visual pipes for inflow (top) and outflow (bottom) that animate when active.
+- **Optional Wide Tank Layout**: Toggle a wider tank body for better readability on larger dashboard spaces.
 - **Animations**:
   - **Inflow**: A scrolling blue stream falls from the top pipe when it rains.
   - **Outflow**: A vertical blue jet falls from the bottom pipe when water is being used.
@@ -52,6 +53,9 @@ roof_size: 100
 us_units: false
 warning_threshold: 20
 low_level_threshold: 10
+show_today_inflow: true
+show_pipes: true
+wide_tank: false
 ```
 
 | Name | Type | Default | Description |
@@ -67,6 +71,9 @@ low_level_threshold: 10
 | `us_units` | boolean | false | Toggle to use US Units (Gallons, ft², °F). |
 | `warning_threshold` | number | 20 | Temperature threshold for alert (°C). |
 | `low_level_threshold` | number | 10 | Low water level threshold (%). |
+| `show_today_inflow` | boolean | true | Show/hide the inflow stats section ("Today's Inflow" and Rain Rate). |
+| `show_pipes` | boolean | true | Show/hide the inflow/outflow pipes and flow animations. |
+| `wide_tank` | boolean | false | Use a wider tank body and container layout. |
 
 ## License
 MIT
