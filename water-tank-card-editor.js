@@ -31,6 +31,19 @@ class WaterTankCardEditor extends LitElement {
         return defaultValue;
     }
 
+    _asBoolean(value, defaultValue = true) {
+        if (value === undefined || value === null) {
+            return defaultValue;
+        }
+        if (typeof value === "boolean") {
+            return value;
+        }
+        const normalized = String(value).toLowerCase().trim();
+        if (["true", "1", "on", "yes"].includes(normalized)) return true;
+        if (["false", "0", "off", "no"].includes(normalized)) return false;
+        return defaultValue;
+    }
+
     render() {
         if (!this.hass || !this.config) {
             return html``;
