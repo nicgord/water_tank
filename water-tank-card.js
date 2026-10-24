@@ -26,6 +26,7 @@ class WaterTankCard extends LitElement {
       us_units: false,
       warning_threshold: 20,
       low_level_threshold: 10,
+      show_volume: false,
       show_today_inflow: true,
       show_pipes: true,
       wide_tank: false,
@@ -89,6 +90,24 @@ class WaterTankCard extends LitElement {
         percentage = (volumeRaw / this.config.max_volume) * 100;
       }
       percentage = Math.min(100, Math.max(0, percentage));
+    }
+
+    // Litres come directly from volume sensors, or from percentage and capacity.
+    const showVolume = this._asBoolean(this.config.show_volume, false);
+    const capacity = Number(this.config.max_volume);
+    let volumeLitres = null;
+    const rawVolume = stateObj ? parseFloat(stateObj.state) : NaN;
+    const volumeUnit = String(stateObj?.attributes.unit_of_measurement || "").toLowerCase().trim();
+    if (Number.isFinite(rawVolume)) {
+      if (volumeUnit === "%") {
+        if (Number.isFinite(capacity) && capacity > 0) {
+          volumeLitres = percentage / 100 * capacity * (this.config.us_units ? 3.785411784 : 1);
+        }
+      } else if (["l", "litre", "litres", "liter", "liters"].includes(volumeUnit)) {
+        volumeLitres = Math.max(0, rawVolume);
+      } else if (["gal", "gallon", "gallons"].includes(volumeUnit)) {
+        volumeLitres = Math.max(0, rawVolume) * 3.785411784;
+      }
     }
 
     const isUS = this.config.us_units;
@@ -320,6 +339,9 @@ class WaterTankCard extends LitElement {
             <!-- Text overlay -->
             <div class="tank-overlay">
               <div class="percentage ${isLowWarning ? 'low' : ''}">${percentage.toFixed(0)}<span class="pct">%</span></div>
+              ${showVolume ? html`
+                <div class="volume">${volumeLitres !== null ? `${Math.round(volumeLitres).toLocaleString()} L` : "— L"}</div>
+              ` : ""}
               ${displayTemp !== null ? html`
                 <div class="temperature ${isTempWarning ? 'warn' : ''}">${displayTemp.toFixed(1)}${displayTempUnit}</div>
               ` : ""}
@@ -435,6 +457,7 @@ class WaterTankCard extends LitElement {
       .percentage { font-size: 2em; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
       .percentage .pct { font-size: 0.5em; font-weight: 500; opacity: 0.85; vertical-align: super; }
       .percentage.low { color: #fbbf24; }
+      .volume { font-size: 0.9em; margin-top: 4px; font-weight: 500; }
       .temperature { font-size: 0.9em; margin-top: 4px; font-weight: 500; opacity: 0.9; }
       .temperature.warn { color: #fbbf24; }
 

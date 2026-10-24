@@ -65,8 +65,19 @@ class WaterTankCardEditor extends LitElement {
         return html`
             <div class="card-config">
                 <div class="option">
+                    <ha-formfield label="Show Litres Below Percentage">
+                        <ha-checkbox
+                            .checked=${this._asBoolean(this.config.show_volume, false)}
+                            .configValue=${"show_volume"}
+                            @change=${this._valueChanged}
+                        ></ha-checkbox>
+                    </ha-formfield>
+                </div>
+                <div class="option">
                     <ha-textfield
-                        label="Max Volume (if entity is not %)"
+                        label="Tank Capacity (L, or US gal with US units)"
+                        helper="For % sensors, set capacity to calculate litres; otherwise match the volume sensor units."
+                        min="0"
                         .value=${this.config.max_volume || ""}
                         .configValue=${"max_volume"}
                         type="number"

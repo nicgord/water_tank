@@ -53,6 +53,8 @@ roof_size: 100
 us_units: false
 warning_threshold: 20
 low_level_threshold: 10
+max_volume: 10000
+show_volume: true
 show_today_inflow: true
 show_pipes: true
 wide_tank: false
@@ -66,7 +68,8 @@ wide_tank: false
 | `rain_entity` | string | Optional | The rain total sensor (accumulated volume today). |
 | `inflow_entity` | string | Optional | The rain rate sensor (mm/h or in/h). Triggers inflow animation if > 0. |
 | `outflow_entity` | string | Optional | A single entity to monitor for usage. Triggers outflow animation when `on` or > 0. |
-| `max_volume` | number | Optional | Required if your volume entity is in Liters/Gallons to calculate percentage. |
+| `max_volume` | number | Optional | Tank capacity. For a % sensor, enter litres (or US gallons with `us_units: true`) to calculate stored litres. For a volume sensor, match its units to calculate percentage. |
+| `show_volume` | boolean | false | Show whole litres below the percentage, above temperature. Reads L/US gal sensors directly; % sensors require positive `max_volume`. Displays — L when volume cannot be calculated. |
 | `roof_size` | number | 100 | Your roof area (m² or ft²) for inflow calculation. |
 | `us_units` | boolean | false | Toggle to use US Units (Gallons, ft², °F). |
 | `warning_threshold` | number | 20 | Temperature threshold for alert (°C). |
@@ -74,6 +77,12 @@ wide_tank: false
 | `show_today_inflow` | boolean | true | Show/hide the inflow stats section ("Today's Inflow" and Rain Rate). |
 | `show_pipes` | boolean | true | Show/hide the inflow/outflow pipes and flow animations. |
 | `wide_tank` | boolean | false | Use a wider tank body and container layout. |
+
+### Showing litres inside the tank
+
+Enable **Show Litres Below Percentage** in the visual card editor and set **Tank Capacity**. For example, a 10,000 L tank at 65% displays **6,500 L**. With metric units, use `show_volume: true` and `max_volume: 10000`.
+
+If your sensor already reports litres, the litres readout uses that value directly; capacity is still needed to calculate the fill percentage. US gallon sensors are converted to litres for this readout. The option is off by default.
 
 ## License
 MIT
