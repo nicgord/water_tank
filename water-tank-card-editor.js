@@ -74,42 +74,50 @@ class WaterTankCardEditor extends LitElement {
                     </ha-formfield>
                 </div>
                 <div class="option">
-                    <ha-textfield
-                        label="Tank Capacity (L, or US gal with US units)"
-                        helper="For % sensors, set capacity to calculate litres; otherwise match the volume sensor units."
+                    <label class="number-field">
+                        <span>Tank Capacity (L, or US gal with US units)</span>
+                        <input
                         min="0"
                         .value=${this.config.max_volume || ""}
                         .configValue=${"max_volume"}
                         type="number"
                         @input=${this._valueChanged}
-                    ></ha-textfield>
+                    >
+                    </label>
+                    <div class="helper">For % sensors, set capacity to calculate litres; otherwise match the volume sensor units.</div>
                 </div>
                 <div class="option">
-                    <ha-textfield
-                        label="Roof Size (m² or ft²)"
+                    <label class="number-field">
+                        <span>Roof Size (m² or ft²)</span>
+                        <input
                         .value=${this.config.roof_size || 100}
                         .configValue=${"roof_size"}
                         type="number"
                         @input=${this._valueChanged}
-                    ></ha-textfield>
+                    >
+                    </label>
                 </div>
                 <div class="option">
-                    <ha-textfield
-                        label="High Temp Threshold (°C)"
+                    <label class="number-field">
+                        <span>High Temp Threshold (°C)</span>
+                        <input
                         .value=${this.config.warning_threshold || 20}
                         .configValue=${"warning_threshold"}
                         type="number"
                         @input=${this._valueChanged}
-                    ></ha-textfield>
+                    >
+                    </label>
                 </div>
                 <div class="option">
-                    <ha-textfield
-                        label="Low Level Threshold (%)"
+                    <label class="number-field">
+                        <span>Low Level Threshold (%)</span>
+                        <input
                         .value=${this.config.low_level_threshold || 10}
                         .configValue=${"low_level_threshold"}
                         type="number"
                         @input=${this._valueChanged}
-                    ></ha-textfield>
+                    >
+                    </label>
                 </div>
                 <div class="option">
                     <ha-formfield label="Show Today's Inflow">
@@ -148,11 +156,8 @@ class WaterTankCardEditor extends LitElement {
             return;
         }
         const target = ev.target;
-        if (this[`_${target.configValue}`] === target.value) {
-            return;
-        }
         if (target.configValue) {
-            if (target.checked !== undefined) {
+            if (target.type === "checkbox" || target.tagName === "HA-CHECKBOX") {
                 // Handle booleans (switches)
                 this.config = {
                     ...this.config,
@@ -197,7 +202,18 @@ class WaterTankCardEditor extends LitElement {
                 margin-bottom: 20px;
                 display: block; /* Ensure block display key for spacing */
             }
-            ha-textfield, ha-entity-picker {
+            .number-field { display: flex; flex-direction: column; gap: 8px; }
+            .number-field input {
+                box-sizing: border-box;
+                padding: 12px;
+                border: 1px solid var(--divider-color, #888);
+                border-radius: 4px;
+                color: var(--primary-text-color);
+                background: var(--card-background-color);
+                font: inherit;
+            }
+            .helper { margin-top: 6px; color: var(--secondary-text-color); font-size: 0.85em; }
+            .number-field input, ha-entity-picker {
                 width: 100%;
                 display: block;
             }
