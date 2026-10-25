@@ -219,7 +219,7 @@ class WaterTankCard extends LitElement {
             <span>${this.config.name || "Water Tank"}</span>
           </div>
           
-          <div class="tank-container" style="width: ${tankContainerWidth}px; height: ${showPipes ? 210 : 184}px;">
+          <div class="tank-container" style="width: ${tankContainerWidth}px; height: ${showPipes && isOutflow ? 210 : 174}px;">
             <svg class="tank-svg" viewBox="0 0 200 200" style="overflow: visible;">
               <defs>
                 <linearGradient id="pg-${u}" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -403,7 +403,7 @@ class WaterTankCard extends LitElement {
   static get styles() {
     return css`
       ha-card {
-        padding: 8px 12px;
+        padding: 2px 12px 4px;
         background: var(--ha-card-background, var(--card-background-color, rgba(255,255,255,0.05)));
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
@@ -466,7 +466,7 @@ class WaterTankCard extends LitElement {
       .low-warning { top: 127px; left: 50%; transform: translateX(-50%); }
       @keyframes pulse { 0%,100% { opacity: 1; transform: translateX(-50%) scale(1); } 50% { opacity: 0.5; transform: translateX(-50%) scale(0.9); } }
 
-      .info-bar { display: flex; justify-content: center; gap: 20px; width: 100%; margin-top: 4px; padding-top: 8px; border-top: 1px solid rgba(128,128,128,0.15); }
+      .info-bar { display: flex; justify-content: center; gap: 20px; width: 100%; margin-top: 0; padding-top: 4px; border-top: 1px solid rgba(128,128,128,0.15); }
       .stat { display: flex; align-items: center; gap: 8px; }
       .stat-icon { color: var(--secondary-text-color); opacity: 0.5; display: flex; align-items: center; }
       .stat-icon.active { color: #3b82f6; opacity: 1; animation: pulseIcon 2s ease-in-out infinite; }
