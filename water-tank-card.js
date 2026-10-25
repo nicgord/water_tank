@@ -219,7 +219,7 @@ class WaterTankCard extends LitElement {
             <span>${this.config.name || "Water Tank"}</span>
           </div>
           
-          <div class="tank-container" style="width: ${tankContainerWidth}px;">
+          <div class="tank-container" style="width: ${tankContainerWidth}px; height: ${showPipes ? 210 : 184}px;">
             <svg class="tank-svg" viewBox="0 0 200 200" style="overflow: visible;">
               <defs>
                 <linearGradient id="pg-${u}" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -403,7 +403,7 @@ class WaterTankCard extends LitElement {
   static get styles() {
     return css`
       ha-card {
-        padding: 16px;
+        padding: 8px 12px;
         background: var(--ha-card-background, var(--card-background-color, rgba(255,255,255,0.05)));
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
@@ -414,14 +414,14 @@ class WaterTankCard extends LitElement {
       .header {
         display: flex; align-items: center; gap: 8px;
         font-size: 1.15em; font-weight: 600; letter-spacing: 0.02em;
-        color: var(--primary-text-color); margin-bottom: 4px;
+        color: var(--primary-text-color); margin-bottom: 0;
       }
       .header-icon { color: var(--primary-color, #0ea5e9); flex-shrink: 0; }
       .tank-container {
         position: relative; width: 240px; height: 210px;
-        margin-top: 8px; display: flex; justify-content: center;
+        margin-top: 0; display: flex; justify-content: center;
       }
-      .tank-svg { width: 100%; height: 100%; }
+      .tank-svg { position: absolute; top: -8px; width: 100%; height: 210px; }
 
       .water-surface { animation: wobble 3s ease-in-out infinite alternate; transform-origin: center; }
       @keyframes wobble { 0%,100% { transform: scaleX(0.97); } 50% { transform: scaleX(1.02); } }
@@ -449,7 +449,7 @@ class WaterTankCard extends LitElement {
       @keyframes dripFall { 0% { transform: translateY(0); opacity: 0.8; } 50% { opacity: 0.5; } 100% { transform: translateY(20px); opacity: 0; } }
 
       .tank-overlay {
-        position: absolute; top: 50%; left: 50%;
+        position: absolute; top: 97px; left: 50%;
         transform: translate(-50%, -50%); text-align: center; z-index: 10;
         color: white; pointer-events: none;
         text-shadow: 0 1px 4px rgba(0,0,0,0.8), 0 0 12px rgba(0,0,0,0.3);
@@ -463,10 +463,10 @@ class WaterTankCard extends LitElement {
 
       .warning-icon { position: absolute; z-index: 20; animation: pulse 1.5s ease-in-out infinite; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
       .temp-warning { top: 5px; left: 50%; transform: translateX(-50%); }
-      .low-warning { bottom: 45px; left: 50%; transform: translateX(-50%); }
+      .low-warning { top: 127px; left: 50%; transform: translateX(-50%); }
       @keyframes pulse { 0%,100% { opacity: 1; transform: translateX(-50%) scale(1); } 50% { opacity: 0.5; transform: translateX(-50%) scale(0.9); } }
 
-      .info-bar { display: flex; justify-content: center; gap: 20px; width: 100%; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(128,128,128,0.15); }
+      .info-bar { display: flex; justify-content: center; gap: 20px; width: 100%; margin-top: 4px; padding-top: 8px; border-top: 1px solid rgba(128,128,128,0.15); }
       .stat { display: flex; align-items: center; gap: 8px; }
       .stat-icon { color: var(--secondary-text-color); opacity: 0.5; display: flex; align-items: center; }
       .stat-icon.active { color: #3b82f6; opacity: 1; animation: pulseIcon 2s ease-in-out infinite; }
