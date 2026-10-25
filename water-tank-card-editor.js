@@ -88,6 +88,44 @@ class WaterTankCardEditor extends LitElement {
                 </div>
                 <div class="option">
                     <label class="number-field">
+                        <span>Low Level Threshold (%)</span>
+                        <input
+                        .value=${this.config.low_level_threshold || 10}
+                        .configValue=${"low_level_threshold"}
+                        type="number"
+                        @input=${this._valueChanged}
+                    >
+                    </label>
+                </div>
+                <div class="option">
+                    <ha-formfield label="Show Pipes & Flow Animation">
+                        <ha-checkbox
+                            .checked=${this._asBoolean(this.config.show_pipes, true)}
+                            .configValue=${"show_pipes"}
+                            @change=${this._valueChanged}
+                        ></ha-checkbox>
+                    </ha-formfield>
+                </div>
+                <div class="option">
+                    <ha-formfield label="Use Wide Tank">
+                        <ha-checkbox
+                            .checked=${this._asBoolean(this.config.wide_tank, false)}
+                            .configValue=${"wide_tank"}
+                            @change=${this._valueChanged}
+                        ></ha-checkbox>
+                    </ha-formfield>
+                </div>
+                <div class="option">
+                    <ha-formfield label="Show Today's Inflow">
+                        <ha-checkbox
+                            .checked=${this._asBoolean(this.config.show_today_inflow, true)}
+                            .configValue=${"show_today_inflow"}
+                            @change=${this._valueChanged}
+                        ></ha-checkbox>
+                    </ha-formfield>
+                </div>
+                <div class="option">
+                    <label class="number-field">
                         <span>Roof Size (m² or ft²)</span>
                         <input
                         .value=${this.config.roof_size || 100}
@@ -107,44 +145,6 @@ class WaterTankCardEditor extends LitElement {
                         @input=${this._valueChanged}
                     >
                     </label>
-                </div>
-                <div class="option">
-                    <label class="number-field">
-                        <span>Low Level Threshold (%)</span>
-                        <input
-                        .value=${this.config.low_level_threshold || 10}
-                        .configValue=${"low_level_threshold"}
-                        type="number"
-                        @input=${this._valueChanged}
-                    >
-                    </label>
-                </div>
-                <div class="option">
-                    <ha-formfield label="Show Today's Inflow">
-                        <ha-checkbox
-                            .checked=${this._asBoolean(this.config.show_today_inflow, true)}
-                            .configValue=${"show_today_inflow"}
-                            @change=${this._valueChanged}
-                        ></ha-checkbox>
-                    </ha-formfield>
-                </div>
-                <div class="option">
-                    <ha-formfield label="Show Pipes & Flow Animation">
-                        <ha-checkbox
-                            .checked=${this._asBoolean(this.config.show_pipes, true)}
-                            .configValue=${"show_pipes"}
-                            @change=${this._valueChanged}
-                        ></ha-checkbox>
-                    </ha-formfield>
-                </div>
-                <div class="option">
-                    <ha-formfield label="Use Wide Tank">
-                        <ha-checkbox
-                            .checked=${this._asBoolean(this.config.wide_tank, false)}
-                            .configValue=${"wide_tank"}
-                            @change=${this._valueChanged}
-                        ></ha-checkbox>
-                    </ha-formfield>
                 </div>
 
             </div>
